@@ -1,0 +1,21 @@
+library(tm)
+library(XML)
+library(wordcloud2)
+library(SnowballC)
+library(RCurl)
+t = readLines('https://www.yna.co.kr/view/AKR20210107033751062?input=1195m')
+d = htmlParse(t, asText = TRUE)
+clean_doc = xpathSApply(d, "//p", xmlValue)
+doc = Corpus(VectorSource(clean_doc))
+doc = tm_map(doc, content_transformer(tolower))
+doc = tm_map(doc, removeNumbers)
+doc = tm_map(doc, removePunctuation)
+doc = tm_map(doc, stripWhitespace)
+dtm = DocumentTermMatrix(doc)
+m = as.matrix(dtm)
+v = sort(colSums(m), decreasing = TRUE)
+d = data.frame(word = names(v), freq = v)
+d1 = d[1:200, ] # 2000 개 단어만 표시
+wordcloud2(d,color = "random-light")
+
+#1월 6일날 내린 폭설과 한파로 영하, 북극발, 폭설과, 수도계량기, 동파, 도로,교통 등 이날 날씨와 관련된 단어들이 주를 이루고 있음을 알 수 있다.
